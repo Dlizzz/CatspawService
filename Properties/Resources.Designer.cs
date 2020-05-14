@@ -69,5 +69,275 @@ namespace Catspaw.Properties {
                 return ((System.Drawing.Icon)(obj));
             }
         }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à AVR communication error..
+        /// </summary>
+        internal static string ErrorCommunicationAvr {
+            get {
+                return ResourceManager.GetString("ErrorCommunicationAvr", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Unable to connect to Avr.
+        /// </summary>
+        internal static string ErrorConnectionAvr {
+            get {
+                return ResourceManager.GetString("ErrorConnectionAvr", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Can&apos;t get Avr IP address.
+        /// </summary>
+        internal static string ErrorIPAvr {
+            get {
+                return ResourceManager.GetString("ErrorIPAvr", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Network timeout..
+        /// </summary>
+        internal static string ErrorNetworkTimeOutAvr {
+            get {
+                return ResourceManager.GetString("ErrorNetworkTimeOutAvr", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Unable to initialize Cec bus.
+        /// </summary>
+        internal static string ErrorNoCecBus {
+            get {
+                return ResourceManager.GetString("ErrorNoCecBus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Unable to get Cec bus controller.
+        /// </summary>
+        internal static string ErrorNoCecController {
+            get {
+                return ResourceManager.GetString("ErrorNoCecController", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Unable to connect to Cec bus controller.
+        /// </summary>
+        internal static string ErrorNoCecControllerConnection {
+            get {
+                return ResourceManager.GetString("ErrorNoCecControllerConnection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Power off failed. Avr status unknown.
+        /// </summary>
+        internal static string ErrorPowerOffAvr {
+            get {
+                return ResourceManager.GetString("ErrorPowerOffAvr", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Unexpected response from Avt.
+        /// </summary>
+        internal static string ErrorResponseAvr {
+            get {
+                return ResourceManager.GetString("ErrorResponseAvr", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à 8.
+        /// </summary>
+        internal static string EventIdAddingComponentFailure {
+            get {
+                return ResourceManager.GetString("EventIdAddingComponentFailure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à 7.
+        /// </summary>
+        internal static string EventIdAddingComponentSuccess {
+            get {
+                return ResourceManager.GetString("EventIdAddingComponentSuccess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à 10.
+        /// </summary>
+        internal static string EventIdShutdown {
+            get {
+                return ResourceManager.GetString("EventIdShutdown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à 9.
+        /// </summary>
+        internal static string EventIdShutdowning {
+            get {
+                return ResourceManager.GetString("EventIdShutdowning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à 5.
+        /// </summary>
+        internal static string EventIdStarted {
+            get {
+                return ResourceManager.GetString("EventIdStarted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à 1.
+        /// </summary>
+        internal static string EventIdStarting {
+            get {
+                return ResourceManager.GetString("EventIdStarting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à 6.
+        /// </summary>
+        internal static string EventIdStopped {
+            get {
+                return ResourceManager.GetString("EventIdStopped", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à 2.
+        /// </summary>
+        internal static string EventIdStopping {
+            get {
+                return ResourceManager.GetString("EventIdStopping", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à 3.
+        /// </summary>
+        internal static string EventIdSuspend {
+            get {
+                return ResourceManager.GetString("EventIdSuspend", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à 4.
+        /// </summary>
+        internal static string EventIdWakeUp {
+            get {
+                return ResourceManager.GetString("EventIdWakeUp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Adding component failed.
+        /// </summary>
+        internal static string EventStrAddingComponentFailure {
+            get {
+                return ResourceManager.GetString("EventStrAddingComponentFailure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Adding component success.
+        /// </summary>
+        internal static string EventStrAddingComponentSuccess {
+            get {
+                return ResourceManager.GetString("EventStrAddingComponentSuccess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Service is shutdown.
+        /// </summary>
+        internal static string EventStrShutdown {
+            get {
+                return ResourceManager.GetString("EventStrShutdown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Service is going to shutdown.
+        /// </summary>
+        internal static string EventStrShutdowning {
+            get {
+                return ResourceManager.GetString("EventStrShutdowning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à CatspawService is started.
+        /// </summary>
+        internal static string EventStrStarted {
+            get {
+                return ResourceManager.GetString("EventStrStarted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à CatspawService is starting.
+        /// </summary>
+        internal static string EventStrStarting {
+            get {
+                return ResourceManager.GetString("EventStrStarting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à CatspawService is stopped.
+        /// </summary>
+        internal static string EventStrStopped {
+            get {
+                return ResourceManager.GetString("EventStrStopped", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à CatspawService is stopping.
+        /// </summary>
+        internal static string EventStrStopping {
+            get {
+                return ResourceManager.GetString("EventStrStopping", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à System is going to suspend state.
+        /// </summary>
+        internal static string EventStrSuspend {
+            get {
+                return ResourceManager.GetString("EventStrSuspend", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à System is waking up.
+        /// </summary>
+        internal static string EventStrWakeUp {
+            get {
+                return ResourceManager.GetString("EventStrWakeUp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à CEC Catspaw.
+        /// </summary>
+        internal static string StrCecDeviceName {
+            get {
+                return ResourceManager.GetString("StrCecDeviceName", resourceCulture);
+            }
+        }
     }
 }

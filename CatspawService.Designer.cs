@@ -1,11 +1,14 @@
-﻿namespace Catspaw
+﻿using System.ComponentModel;
+using System.Diagnostics;
+
+namespace Catspaw
 {
     partial class CatspawService
     {
         /// <summary> 
         /// Variable nécessaire au concepteur.
         /// </summary>
-        private System.ComponentModel.IContainer components = null;
+        private IContainer components = null;
 
         /// <summary>
         /// Nettoyage des ressources utilisées.
@@ -28,10 +31,21 @@
         /// </summary>
         private void InitializeComponent()
         {
-            components = new System.ComponentModel.Container();
-            this.ServiceName = "Service1";
+            this.eventLog = new System.Diagnostics.EventLog();
+            ((System.ComponentModel.ISupportInitialize)(this.eventLog)).BeginInit();
+            // 
+            // CatspawService
+            // 
+            this.AutoLog = false;
+            this.CanHandlePowerEvent = true;
+            this.CanShutdown = true;
+            this.ServiceName = "CatspawService";
+            ((System.ComponentModel.ISupportInitialize)(this.eventLog)).EndInit();
+
         }
 
         #endregion
+
+        private EventLog eventLog;
     }
 }
