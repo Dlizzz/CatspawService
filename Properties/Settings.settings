@@ -17,11 +17,5 @@
     <Setting Name="ApiServerPort" Type="System.Int32" Scope="Application">
       <Value Profile="(Default)">33000</Value>
     </Setting>
-    <Setting Name="ApiServerRoot" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">catspaw</Value>
-    </Setting>
-    <Setting Name="ApiVersion" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">1.0</Value>
-    </Setting>
   </Settings>
 </SettingsFile>

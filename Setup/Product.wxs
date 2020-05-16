@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:fw="http://schemas.microsoft.com/wix/FirewallExtension">
+	<Product Id="5D152E7B-FE94-4112-8531-AA0B03166BF1" Name="$(var.Catspaw.TargetName)" Language="1033" Version="1.0.0.0" Manufacturer="Cats Cie" UpgradeCode="6726ddb9-f193-45fd-9c95-8595a6f60de0">
+		<Package Id="*" Keywords="Installer" Description="$(var.Catspaw.TargetName) service installer" Comments="$(var.Catspaw.TargetName) is a registered trademark of Cats Cie." Manufacturer="Cats Cie" InstallerVersion="500" Compressed="yes" InstallScope="perMachine" />
+    <Condition Message="You need to be an administrator to install this product.">
+      Privileged
+    </Condition>
+		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+		<MediaTemplate EmbedCab="yes"/>
+
+		<Feature Id="ProductFeature" Title="Catspaw service" Level="1">
+			<ComponentGroupRef Id="ProductComponents" />
+		</Feature>
+	</Product>
+
+	<Fragment>
+		<Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFiles64Folder">
+        <Directory Id="CatsCieFolder" Name="CatsCie">
+  				<Directory Id="INSTALLFOLDER" Name="$(var.Catspaw.TargetName)" />
+        </Directory>
+      </Directory>
+		</Directory>
+	</Fragment>
+
+	<Fragment>
+		<ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+			<Component Id="ServiceComponent" Guid="65D11B91-49A0-47A5-B04E-020251D80A1B">
+				<File Id="CatspawEXE" Source="$(var.Catspaw.TargetPath)" Vital="yes" KeyPath="yes"/>
+				<?if $(var.Catspaw.Configuration) = "Debug" ?>
+					<File Id="CatspawPDB" Source="$(var.Catspaw.TargetDir)$(var.Catspaw.TargetName).pdb" Vital="no"/>
+				<?endif ?>
+        <ServiceInstall Id="ServiceInstaller" Name="CatspawService" DisplayName="Catspaw Automation" Description="Keeps On/Off status of all HTPC components synchronized and implements the api server for applications control." ErrorControl="normal" Interactive="no" Start="auto" Type="ownProcess" Vital="yes"/>
+        <ServiceControl Id="ServiceController" Name="CatspawService" Start="install" Stop="uninstall" Remove="uninstall" Wait="yes"/>
+        <fw:FirewallException Id="Exception" Name="Catspaw Service" Port="33000" Protocol="tcp" Description="Api server for the Catspaw Service" Profile="private" Scope="localSubnet"/>
+      </Component>
+      <Component Id="ServiceConfig" Guid="82B18C89-2055-4FD4-B089-248E65FA346D">
+        <File Id="CatspawConfig" Source="$(var.Catspaw.TargetDir)$(var.Catspaw.TargetName).exe.config" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="Cec" Guid="CAE2B089-3F94-4E6E-BFA3-916B2EAADA4B">
+        <File Id="CecDLL" Source="$(var.Catspaw.TargetDir)cec.dll" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="LibCecSharp" Guid="215EB2F3-53EB-44F4-AD19-D43DD03C0336">
+        <File Id="LibCecSharpDLL" Source="$(var.Catspaw.TargetDir)LibCecSharp.dll" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="Nancy" Guid="29D9DA0D-1CC7-4FBB-B886-43802867F0F9">
+        <File Id="NancyDLL" Source="$(var.Catspaw.TargetDir)Nancy.dll" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="NancyHostingSelf" Guid="39ACB7CF-EEA0-41D4-901A-B28CE76A96D0">
+        <File Id="NancyHostingSelfDLL" Source="$(var.Catspaw.TargetDir)Nancy.Hosting.Self.dll" Vital="yes" KeyPath="yes"/>
+      </Component>
+      <Component Id="INSTALLFOLDER" Guid="69E89177-9C4D-45FF-93F4-5A121001D417">
+        <RemoveFolder Id='INSTALLFOLDER' On='uninstall' />
+        <RegistryValue Root='HKCU' Key='Software\[Manufacturer]\[ProductName]' Type='string' Value='' KeyPath='yes' />
+      </Component>
+		</ComponentGroup>
+	</Fragment>
+</Wix>

@@ -67,23 +67,5 @@ namespace Catspaw.Properties {
                 return ((int)(this["ApiServerPort"]));
             }
         }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("catspaw")]
-        public string ApiServerRoot {
-            get {
-                return ((string)(this["ApiServerRoot"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1.0")]
-        public string ApiVersion {
-            get {
-                return ((string)(this["ApiVersion"]));
-            }
-        }
     }
 }

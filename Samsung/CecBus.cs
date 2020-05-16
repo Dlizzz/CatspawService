@@ -1,6 +1,8 @@
 ﻿using System;
 using CecSharp;
 using Catspaw.Properties;
+using System.Diagnostics;
+using System.Globalization;
 
 namespace Catspaw.Samsung
 {
@@ -11,6 +13,11 @@ namespace Catspaw.Samsung
     {
         private readonly int timeout;
         private const int controllerId = 0;
+
+        // Cec bus component
+        private readonly LibCecSharp connection;
+        private readonly LibCECConfiguration configuration;
+        private readonly CecAdapter controller;
 
         /// <summary>
         /// Initialize the Cec bus without callback methods (no need) 
@@ -24,33 +31,51 @@ namespace Catspaw.Samsung
 
             this.timeout = timeout;
 
-            Configuration = new LibCECConfiguration();
-            Configuration.DeviceTypes.Types[0] = CecDeviceType.PlaybackDevice;
-            Configuration.DeviceName = Resources.StrCecDeviceName;
-            Configuration.ClientVersion = LibCECConfiguration.CurrentVersion;
+            configuration = new LibCECConfiguration();
+            configuration.DeviceTypes.Types[0] = CecDeviceType.PlaybackDevice;
+            configuration.DeviceName = Resources.StrCecDeviceName;
+            configuration.ClientVersion = LibCECConfiguration.CurrentVersion;
+            configuration.SetCallbacks(this);
 
-            Connection = new LibCecSharp(Configuration) ?? throw new CecException(Resources.ErrorNoCecBus);
-            Connection.InitVideoStandalone();
+            connection = new LibCecSharp(configuration) ?? throw new CecException(Resources.ErrorNoCecBus);
+            connection.InitVideoStandalone();
 
             // Get the controller on the bus
-            CecAdapter[] adapters = Connection.FindAdapters(string.Empty);
-            if (adapters.Length > 0) Controller = adapters[controllerId];
+            controller = null;
+            CecAdapter[] adapters = connection.FindAdapters(string.Empty);
+            if (adapters.Length > 0) controller = adapters[controllerId];
             else
             {
-                Controller = null;
                 throw new CecException(Resources.ErrorNoCecController);
             }
+
+            // Connection must be openned before going to suspend mode as the SCM stop the thread if we try to open
+            // the connection during power event because it's an async operation
+            if (!connection.Open(controller.ComPort, timeout))
+                throw new CecException(Resources.ErrorNoCecControllerConnection);
+
+            // Register active source of the connection
+            connection.SetActiveSource(CecDeviceType.PlaybackDevice);
         }
 
-        #region Properties
-        /// <summary>Get the connection to the bus</summary>
-        public LibCecSharp Connection { get; }
-        
-        /// <summary>Get the configuration of the bus</summary>
-        public LibCECConfiguration Configuration { get; }
+        #region Callbacks
+        /// <summary>Dummy RecieveCommand callback</summary>
+        /// <param name="command"></param>
+        /// <returns>Always 1</returns>
+        public override int ReceiveCommand(CecCommand command) => 1;
+        /// <summary>Dummy RecieveKeypress callback</summary>
+        /// <param name="key"></param>
+        /// <returns>Always 1</returns>
+        public override int ReceiveKeypress(CecKeypress key) => 1;
+        /// <summary>Dummy RecieveLogMessage callback</summary>
+        /// <param name="message"></param>
+        /// <returns>Always 1</returns>
+        public override int ReceiveLogMessage(CecLogMessage message) => 1;
+        #endregion
 
-        /// <summary>Get the controller on the Cec bus</summary>
-        public CecAdapter Controller { get; }
+        #region Properties
+        /// <summary>Get the controller path on the Cec bus</summary>
+        public string Controller => controller.Path + ":" + controller.ComPort;
 
         /// <summary>
         /// Get the logical address of the Tv on the cec bus
@@ -60,7 +85,7 @@ namespace Catspaw.Samsung
         /// <summary>
         /// Get the current version of LibCec
         /// </summary>
-        public string LibCecVersion => Connection.VersionToString(Configuration.ServerVersion);
+        public string LibCecVersion => connection.VersionToString(configuration.ServerVersion);
         #endregion
 
         #region Power Management
@@ -74,28 +99,25 @@ namespace Catspaw.Samsung
         public PowerState SwitchDevicePowerState(CecLogicalAddress device, PowerState requestedPowerState)
         {
             PowerState state = PowerState.PowerUnknown;
-            
-            try
-            {
-                Connect();
-            }
-            catch (CecException) { throw; }
 
-            if (IsDeviceReady(device))
+            switch (requestedPowerState)
             {
-                switch (requestedPowerState)
-                {
-                    case PowerState.PowerOff:
-                        if (Connection.StandbyDevices(device)) state = PowerState.PowerOff;
-                        break;
-                    case PowerState.PowerOn:
-                        if (Connection.PowerOnDevices(device)) state = PowerState.PowerOn;
-                        break;
-                    default:
-                        break;
-                }
+                case PowerState.PowerOff:
+                    if (IsDeviceReady(device) && connection.StandbyDevices(device)) state = PowerState.PowerOff;
+                    break;
+                case PowerState.PowerOn:
+                    // Close and reopen the connection as we lose it when we go to sleep
+                    connection.Close();
+                    if (!connection.Open(controller.ComPort, timeout))
+                        throw new CecException(Resources.ErrorNoCecControllerConnection);
+                    // Register active source of the connection
+                    connection.SetActiveSource(CecDeviceType.PlaybackDevice);
+
+                    if (IsDeviceReady(device) && connection.PowerOnDevices(device)) state = PowerState.PowerOn;
+                    break;
+                default:
+                    break;
             }
-            Disconnect();
 
             return state;
         }
@@ -110,15 +132,9 @@ namespace Catspaw.Samsung
         {
             PowerState state = PowerState.PowerUnknown;
 
-            try
-            {
-                Connect();
-            }
-            catch (CecException) { throw; }
-
             if (IsDeviceReady(device))
             {
-                CecPowerStatus cecStatus = Connection.GetDevicePowerStatus(device);
+                CecPowerStatus cecStatus = connection.GetDevicePowerStatus(device);
 
                 state = cecStatus switch
                 {
@@ -128,32 +144,12 @@ namespace Catspaw.Samsung
                 };
             }
 
-            Disconnect();
             return state;
         }
-        #endregion
 
-        #region Connection
         // Return True if device is ready to recieve command
         private bool IsDeviceReady(CecLogicalAddress device) =>
-            (Connection.IsActiveDevice(device) && Connection.PollDevice(device));
-
-        // Connect to the Cec bus controller. 
-        private void Connect()
-        {
-            // Fails if no controller
-            if (Controller == null) throw new CecException(Resources.ErrorNoCecController);
-
-            // Try to connect to the controller
-            if (!Connection.Open(Controller.ComPort, timeout))
-                throw new CecException(Resources.ErrorNoCecControllerConnection);
-
-            // Register active source of the connection
-            Connection.SetActiveSource(CecDeviceType.PlaybackDevice);
-        }
-
-        // Close the connection to the Cec bus controller
-        private void Disconnect() => Connection.Close();
+            (connection.IsActiveDevice(device) && connection.PollDevice(device));
         #endregion
 
         #region Dispose support
@@ -171,8 +167,8 @@ namespace Catspaw.Samsung
 
             if (disposing)
             {
-                Connection.Close();
-                if (Connection != null) Connection.Dispose();
+                connection.Close();
+                if (connection != null) connection.Dispose();
             }
             disposed = true;
             // Call base class implementation.

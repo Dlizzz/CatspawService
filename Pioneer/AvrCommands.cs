@@ -27,14 +27,14 @@ namespace Catspaw.Pioneer
         /// </summary>
         /// <exception cref="AvrException">
         /// Network timeout or communication error with Avr.</exception>
-        public void PowerOff() => Execute(commands[AvrCommands.PowerOff].command);
+        public void PowerOff() => Send(commands[AvrCommands.PowerOff].command);
 
         /// <summary>
         /// Power on Avr. Response is not checked for performance reasons.
         /// </summary>
         /// <exception cref="AvrException">
         /// Network timeout or communication error with Avr.</exception>
-        public void PowerOn() => Send(commands[AvrCommands.PowerOn].command);
+        public void PowerOn() => Exec(commands[AvrCommands.PowerOn].command);
 
         /// <summary>
         /// Get power state of Avr
@@ -45,7 +45,7 @@ namespace Catspaw.Pioneer
         {
             PowerState state = PowerState.PowerUnknown;
 
-            string response = Send(commands[AvrCommands.PowerOn].command);
+            string response = Exec(commands[AvrCommands.PowerOn].command);
             
             Match match = commands[AvrCommands.PowerOn].expect.Match(response);
             if (match.Success)

@@ -1,12 +1,13 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Globalization;
 using System.ServiceProcess;
 using System.Threading;
-using Nancy.Hosting.Self;
 using Catspaw.Properties;
 using Catspaw.Pioneer;
 using Catspaw.Samsung;
+using Catspaw.Api;
+using System;
+using System.IO;
 
 namespace Catspaw
 {
@@ -19,13 +20,12 @@ namespace Catspaw
         private Avr pioneerAvr;
         private Tv samsungTv;
 
-        // Api web server
-        private NancyHost apiServer;
-        private Uri apiUri;
-
         // To make ResumeAutomatic and ResumeSuspend mutually exclusive
         private const int INT_FALSE = 0, INT_TRUE = 1; 
         private int isResumed = INT_FALSE;
+
+        // The Api server
+        private ApiServer apiServer;
 
         #region Initialization
         /// <summary>
@@ -34,6 +34,15 @@ namespace Catspaw
         public CatspawService()
         {
             InitializeComponent();
+
+            //Initialize event log
+            eventLog = new EventLog();
+            if (!EventLog.SourceExists(Resources.StrEventLogSource))
+            {
+                EventLog.CreateEventSource(Resources.StrEventLogSource, "Application");
+            }
+            eventLog.Source = Resources.StrEventLogSource;
+            eventLog.Log = "Application";
         }
         #endregion
 
@@ -66,16 +75,14 @@ namespace Catspaw
             catch (AvrException e)
             {
                 pioneerAvr = null;
-                eventLog.WriteEntry(Resources.EventIdAddingComponentFailure
-                    + $" {pioneerAvr.Hostname}:{pioneerAvr.Port}"
-                    + $" ; {e.Message}",
+                eventLog.WriteEntry(Resources.EventStrAddingComponentFailure + $": {e.Message}",
                     EventLogEntryType.Warning,
                     int.Parse(Resources.EventIdAddingComponentFailure, CultureInfo.InvariantCulture));
             }
             if (pioneerAvr != null)
-                eventLog.WriteEntry(Resources.EventIdAddingComponentSuccess 
-                    + $" {pioneerAvr.Hostname}:{pioneerAvr.Port}",
-                    EventLogEntryType.Information, 
+                eventLog.WriteEntry(Resources.EventStrAddingComponentSuccess
+                    + $": {pioneerAvr.Hostname}:{pioneerAvr.Port}",
+                    EventLogEntryType.Information,
                     int.Parse(Resources.EventIdAddingComponentSuccess, CultureInfo.InvariantCulture));
 
             //Initialize Samsung TV
@@ -86,35 +93,23 @@ namespace Catspaw
             catch (CecException e)
             {
                 samsungTv = null;
-                eventLog.WriteEntry(Resources.EventIdAddingComponentFailure
-                    + $" {samsungTv.Controller.Path}:{samsungTv.Controller.ComPort}"
-                    + $" ; {e.Message}",
+                eventLog.WriteEntry(Resources.EventStrAddingComponentFailure + $": {e.Message}",
                     EventLogEntryType.Warning,
                     int.Parse(Resources.EventIdAddingComponentFailure, CultureInfo.InvariantCulture));
             }
             if (samsungTv != null)
-                eventLog.WriteEntry(Resources.EventIdAddingComponentSuccess 
-                    + $" {samsungTv.Controller.Path}:{samsungTv.Controller.ComPort}",
+                eventLog.WriteEntry(Resources.EventStrAddingComponentSuccess
+                    + ":" + samsungTv.Controller,
                     EventLogEntryType.Information,
                     int.Parse(Resources.EventIdAddingComponentSuccess, CultureInfo.InvariantCulture));
 
-            // Initialize Api Server and start the Api server
-            var apiServerConfig = new HostConfiguration
-            {
-                UrlReservations = new UrlReservations() { CreateAutomatically = true }
-            };
-            // Warning: Uri must terminate with / or server will crash when starting
-            apiUri = new Uri(
-                "http://localhost:"
-                + Settings.Default.ApiServerPort.ToString(CultureInfo.InvariantCulture)
-                + "/" + Settings.Default.ApiServerRoot + "/");
-            apiServer = new NancyHost(apiServerConfig, apiUri);
-            apiServer.Start();
+            // Initialize Api server
+            apiServer = new ApiServer();
 
             // Report service is started
-            var message = Resources.EventStrStarted + " and listening on " + apiUri.ToString();
+            var message = Resources.EventStrStarted + " and listening on " + apiServer.BaseUri.ToString();
             eventLog.WriteEntry(message, EventLogEntryType.Information,
-                int.Parse(Resources.EventIdStarting, CultureInfo.InvariantCulture));
+                int.Parse(Resources.EventIdStarted, CultureInfo.InvariantCulture));
 
             // Update the service state to Running.
             serviceStatus.dwCurrentState = ServiceState.SERVICE_RUNNING;
@@ -157,10 +152,8 @@ namespace Catspaw
 
         private void ServiceStop()
         {
-            // Stop the server
-            apiServer.Stop();
-
             // Disposing resources
+            apiServer?.Dispose();
             pioneerAvr?.Dispose();
             samsungTv?.Dispose();
         }
@@ -209,7 +202,7 @@ namespace Catspaw
                     if (Interlocked.CompareExchange(ref isResumed, INT_TRUE, INT_FALSE) == INT_FALSE)
                     {
                         // Report service is waking up
-                        eventLog.WriteEntry(Resources.EventStrWakeUp, EventLogEntryType.Information,
+                        eventLog.WriteEntry(Resources.EventStrWakeUp + ": " + powerStatus.ToString("G"), EventLogEntryType.Information,
                             int.Parse(Resources.EventIdWakeUp, CultureInfo.InvariantCulture));
 
                         // If we have a Tv, try to power it on. Report if it fails.

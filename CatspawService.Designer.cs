@@ -18,6 +18,7 @@ namespace Catspaw
         {
             if (disposing && (components != null))
             {
+                ServiceStop();
                 components.Dispose();
             }
             base.Dispose(disposing);

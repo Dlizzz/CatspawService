@@ -28,7 +28,7 @@ namespace Catspaw.Samsung
         /// <summary>
         /// Get the controller of the Cec bus on which the TV is connected
         /// </summary>
-        public CecAdapter Controller => Bus.Controller;
+        public string Controller => Bus.Controller;
 
         #region Power Management
         /// <summary>

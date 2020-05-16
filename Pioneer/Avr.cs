@@ -5,7 +5,6 @@ using System.Net.Sockets;
 using System.IO;
 using System.Threading;
 using System.Text;
-using Serilog;
 using Catspaw.Properties;
 
 namespace Catspaw.Pioneer
@@ -61,11 +60,11 @@ namespace Catspaw.Pioneer
         public int Port { get; }
 
         #region Avr network communication
-        // Execute a command on avr
+        // Send a command to avr
         // For performance reason, does not check for network or avr readiness
         // and doesn't process avr response.
         // Status of avr is unknown if an exception is thrown 
-        private void Execute(in string command)
+        private void Send(in string command)
         {
             try
             {
@@ -84,8 +83,8 @@ namespace Catspaw.Pioneer
             }
         }
 
-        // Send command to avr and get its response 
-        private string Send(in string command)
+        // Execute command on avr and get its response 
+        private string Exec(in string command)
         {
             string response;
 

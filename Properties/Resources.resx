@@ -225,4 +225,16 @@
   <data name="EventStrShutdowning" xml:space="preserve">
     <value>Service is going to shutdown</value>
   </data>
+  <data name="StrEventLogSource" xml:space="preserve">
+    <value>CatspawService</value>
+    <comment>String</comment>
+  </data>
+  <data name="StrApiServerRoot" xml:space="preserve">
+    <value>Catspaw</value>
+    <comment>String</comment>
+  </data>
+  <data name="StrApiVersion" xml:space="preserve">
+    <value>1.0</value>
+    <comment>String</comment>
+  </data>
 </root>

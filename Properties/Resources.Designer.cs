@@ -332,11 +332,38 @@ namespace Catspaw.Properties {
         }
         
         /// <summary>
+        ///   Recherche une chaîne localisée semblable à Catspaw.
+        /// </summary>
+        internal static string StrApiServerRoot {
+            get {
+                return ResourceManager.GetString("StrApiServerRoot", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à 1.0.
+        /// </summary>
+        internal static string StrApiVersion {
+            get {
+                return ResourceManager.GetString("StrApiVersion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Recherche une chaîne localisée semblable à CEC Catspaw.
         /// </summary>
         internal static string StrCecDeviceName {
             get {
                 return ResourceManager.GetString("StrCecDeviceName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à CatspawService.
+        /// </summary>
+        internal static string StrEventLogSource {
+            get {
+                return ResourceManager.GetString("StrEventLogSource", resourceCulture);
             }
         }
     }
