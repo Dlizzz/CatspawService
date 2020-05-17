@@ -15,31 +15,54 @@
         flask: rest api implementation
         wakeonlan: send magic packet
         sdnotify: systemd notifier
+        requests: url calling
 """
 
 import sys
 import os
 import argparse
 import logging
+import ptvsd
+import requests
+from pathlib import Path
 from flask import Flask, request, Response, abort
 from wakeonlan import send_magic_packet
 from sdnotify import SystemdNotifier
 
 
 # Script information
-__version_info__ = ('0', '0', '2')
+__version_info__ = ('0', '0', '3')
 __version__ = '.'.join(__version_info__)
-__date__ = "2020-05-07"
+__date__ = "2020-05-17"
 __author__ = "Denis Lambolez"
 __contact__ = "denis.lambolez@gmail.com"
 __license__ = "MIT"
 
 # Global constants
 LOG_DIR = "/var/log"
+
 # LOG_DIR = os.path.dirname(os.path.realpath(__file__))
 LOG_LEVEL = logging.INFO
-SCRIPT_NAME = "ifttt_proxy"
 
+# Routes
+SCRIPT_NAME = Path(__file__).stem
+
+API_VER = "1.0"
+API_ROOT = SCRIPT_NAME
+API_BASE_URL = "/" + API_ROOT + "/api/" + API_VER
+
+R_VERSION = API_BASE_URL + "/version" 
+R_SUSPEND = API_BASE_URL + "/suspend" 
+R_WAKEUP =  API_BASE_URL + "/wakeup"
+R_SHUTDOWN = API_BASE_URL + "/shutdown_proxy"
+
+# Catspaw api
+CATSPAW_SERVER = "catshc.catsnet.home"
+CATSPAW_PORT = "33000"
+CATSPAW_API_VER = "1.0"
+CATSPAW_ROOT = "catspaw"
+
+CATSPAW_API_BASE_URL = "http://" + CATSPAW_SERVER + ":" + CATSPAW_PORT + "/" + CATSPAW_ROOT + "/api/" + CATSPAW_API_VER
 
 class FlaskApi:
     """The Api class
@@ -56,33 +79,63 @@ class FlaskApi:
         self._target = target
         self._logger = logger
         self._api = Flask(name)
-        self._api.add_url_rule("/" + SCRIPT_NAME + "/api/v1.0/wakeup", "get_wakeup",
-                               self.EndpointAction(self._get_wakeup, False))
-        self._api.add_url_rule("/" + SCRIPT_NAME + "/api/v1.0/shutdown", "get_shutdown",
-                               self.EndpointAction(self._shutdown, False))
+        self._api.add_url_rule(R_VERSION, "get_version", self.EndpointAction(self._get_version, False))
+        self._api.add_url_rule(R_SUSPEND, "get_suspend", self.EndpointAction(self._get_suspend, False))
+        self._api.add_url_rule(R_WAKEUP, "get_wakeup", self.EndpointAction(self._get_wakeup, False))
+        self._api.add_url_rule(R_SHUTDOWN, "get_shutdown_proxy", self.EndpointAction(self._shutdown_proxy, False))
 
     def run(self):
         """Start the application server"""
         self._api.run(host="0.0.0.0", port=self._port)
 
+    def _get_version(self):
+        """Version api action"""
+        self._logger.info("Request version on %s from %s", request.path, request.remote_addr)
+        # Get version
+        catspaw_api_call = CATSPAW_API_BASE_URL + "/version" 
+        self._logger.info("Call Catspaw version api: " + catspaw_api_call)
+        catspaw_api_version = ""
+        try:
+            r = requests.get(catspaw_api_call, timeout=5)
+        except (ConnectionError, TimeoutError, requests.exceptions.RequestException) as err:
+            catspaw_api_version = str(err)
+        if not catspaw_api_version:
+            catspaw_api_version = r.text
+        return "ifttt_proxy version: " + __version__ + "\ncatspaw version: " + catspaw_api_version
+
+    def _get_suspend(self):
+        """Suspend api action"""
+        self._logger.info("Request suspend on %s from %s", request.path, request.remote_addr)
+        # Suspend the target
+        catspaw_api_call = CATSPAW_API_BASE_URL + "/poweroff" 
+        self._logger.info("Call Catspaw suspend api: " + catspaw_api_call)
+        response = ""
+        try:
+            r = requests.get(catspaw_api_call, timeout=3)
+        except (ConnectionError, TimeoutError, requests.exceptions.RequestException) as err:
+            response = str(err)
+        if not response:
+            response = r.text
+        return response
+
     def _get_wakeup(self):
         """Wakeup api action"""
-        self._logger.info("Request on %s from %s", request.path, request.remote_addr)
+        self._logger.info("Request wakeup on %s from %s", request.path, request.remote_addr)
         # Wake up the target
         self._logger.info("Send magic packet to target with mac address: %s", self._target)
         send_magic_packet(self._target)
         # return OK
         return "Waking up target..."
 
-    def _shutdown(self):
+    def _shutdown_proxy(self):
         """Shutdown api action"""
-        self._logger.info("Request on %s from %s", request.path, request.remote_addr)
+        self._logger.info("Request shutdown on %s from %s", request.path, request.remote_addr)
         func = request.environ.get("werkzeug.server.shutdown")
         if func is None:
             raise RuntimeError("Not running with the Werkzeug Server")
-        self._logger.info("Gracefully shutting down the server...")
+        self._logger.info("Gracefully shutting down the proxy server...")
         func()
-        return "Server shutting down..."
+        return "Proxy server shutting down..."
 
     class EndpointAction:
         """Define an action attached to an end point"""
@@ -145,4 +198,7 @@ def main():
 
 # Module entry point with remote debug
 if __name__ == "__main__":
+    if os.getenv("PYTHON_DEBUG", default="False") == "True":
+        ptvsd.enable_attach(address=("0.0.0.0", 5678))
+        ptvsd.wait_for_attach()
     main()

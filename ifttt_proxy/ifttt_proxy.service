@@ -14,7 +14,7 @@ User=ifttt
 Group=ifttt
 
 ExecStart=/usr/bin/python3 /usr/local/bin/ifttt_proxy.py -t ${TARGET} -p ${PORT}
-ExecStop=/usr/bin/curl http://${SERVER}:${PORT}/ifttt_proxy/api/v1.0/shutdown
+ExecStop=/usr/bin/curl http://${SERVER}:${PORT}/ifttt_proxy/api/1.0/shutdown_proxy
 
 Type=notify
 Restart=on-failure

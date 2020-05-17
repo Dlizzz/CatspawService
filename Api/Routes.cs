@@ -14,7 +14,7 @@ namespace Catspaw.Api
         public Routes() : base("/api/" + Resources.StrApiVersion)
         {
             Get("/version", _ => Assembly.GetExecutingAssembly().FullName);
-            Get("/poweroff", _ => NativeMethods.SetSuspendState(false, false, false) ? HttpStatusCode.OK : HttpStatusCode.InternalServerError);
+            Get("/poweroff", _ => (NativeMethods.SetSuspendState(false, false, false) != 0) ? HttpStatusCode.OK : HttpStatusCode.InternalServerError);
         }
     }
 }

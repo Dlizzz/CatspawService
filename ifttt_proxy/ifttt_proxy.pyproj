@@ -3,17 +3,19 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>61a9161b-b749-4897-a86c-af70a6a16ff2</ProjectGuid>
-    <ProjectHome />
+    <ProjectHome>C:\Users\denis\source\repos\Catspaw\ifttt_proxy</ProjectHome>
     <StartupFile>ifttt_proxy.py</StartupFile>
     <SearchPath>
     </SearchPath>
-    <WorkingDirectory>.</WorkingDirectory>
+    <WorkingDirectory>C:\Users\denis\source\repos\Catspaw\ifttt_proxy</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
     <InterpreterId />
     <CommandLineArguments>-t catshc</CommandLineArguments>
     <Name>ifttt_proxy</Name>
     <RootNamespace>ifttt_proxy</RootNamespace>
+    <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
+    <PublishUrl>\\CATSSERVER\Matou\Projects\Development\python\ifttt_proxy</PublishUrl>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -27,7 +29,9 @@
     <Compile Include="ifttt_proxy.py" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="ifttt_proxy.service" />
+    <Content Include="ifttt_proxy.service">
+      <Publish>True</Publish>
+    </Content>
     <Content Include="mypy.ini" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />

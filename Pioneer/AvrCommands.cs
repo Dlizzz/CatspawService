@@ -34,7 +34,7 @@ namespace Catspaw.Pioneer
         /// </summary>
         /// <exception cref="AvrException">
         /// Network timeout or communication error with Avr.</exception>
-        public void PowerOn() => Exec(commands[AvrCommands.PowerOn].command);
+        public void PowerOn() => _ = Exec(commands[AvrCommands.PowerOn].command);
 
         /// <summary>
         /// Get power state of Avr

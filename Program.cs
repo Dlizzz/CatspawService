@@ -65,7 +65,7 @@ namespace Catspaw
         /// <returns>If the function succeeds, the return value is true.</returns>
         /// <remarks>See http://msdn.microsoft.com/en-us/library/aa373201(VS.85).aspx</remarks>
         [DllImport("Powrprof.dll", SetLastError = true)]
-        internal static extern bool SetSuspendState(bool hibernate, bool forceCritical, bool disableWakeEvent);
+        internal static extern uint SetSuspendState(bool hibernate, bool forceCritical, bool disableWakeEvent);
     }
     #endregion
 
