@@ -24,17 +24,23 @@ namespace Catspaw.Pioneer
 
         /// <summary>
         /// Power off Avr. Response is not checked for performance reasons.
+        /// Avr is considered connected
         /// </summary>
         /// <exception cref="AvrException">
-        /// Network timeout or communication error with Avr.</exception>
+        /// Communication error with Avr.</exception>
         public void PowerOff() => Send(commands[AvrCommands.PowerOff].command);
 
         /// <summary>
         /// Power on Avr. Response is not checked for performance reasons.
+        /// Avr connection is resetted as we have lost the connection when power was down.
         /// </summary>
         /// <exception cref="AvrException">
         /// Network timeout or communication error with Avr.</exception>
-        public void PowerOn() => _ = Exec(commands[AvrCommands.PowerOn].command);
+        public void PowerOn()
+        {
+            ResetAvr();
+            Send(commands[AvrCommands.PowerOn].command);
+        }
 
         /// <summary>
         /// Get power state of Avr

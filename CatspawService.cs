@@ -1,13 +1,14 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.IO;
+using System.Diagnostics;
 using System.Globalization;
 using System.ServiceProcess;
 using System.Threading;
+using System.Reflection;
 using Catspaw.Properties;
 using Catspaw.Pioneer;
 using Catspaw.Samsung;
 using Catspaw.Api;
-using System;
-using System.IO;
 
 namespace Catspaw
 {
@@ -26,6 +27,10 @@ namespace Catspaw
 
         // The Api server
         private ApiServer apiServer;
+
+        // Debug 
+        FileStream logFile;
+        TextWriterTraceListener listener;
 
         #region Initialization
         /// <summary>
@@ -54,6 +59,11 @@ namespace Catspaw
         /// <param name="args">Command line arguments</param>
         protected override void OnStart(string[] args)
         {
+            // Debug
+            logFile = File.Create(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "catspaw.log"));
+            listener = new TextWriterTraceListener(logFile);
+            Debug.Listeners.Add(listener);
+
             // Update the service state to Start Pending.
             ServiceStatus serviceStatus = new ServiceStatus
             {
@@ -156,6 +166,11 @@ namespace Catspaw
             apiServer?.Dispose();
             pioneerAvr?.Dispose();
             samsungTv?.Dispose();
+
+            // Debug
+            Debug.Listeners.Remove(listener);
+            listener.Dispose();
+            logFile.Dispose();
         }
         #endregion
 
